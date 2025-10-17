@@ -1,11 +1,94 @@
 {% extends 'quiz/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'accounts/css/register.css' %}">
+{% endblock %}
+
 {% block content %}
-<h3 class="mb-4 text-center">สมัครสมาชิก / เข้าสู่ระบบ</h3>
-<form method="post" class="card p-4 shadow-sm mx-auto" style="max-width: 500px;">
-  {% csrf_token %}
-  {{ form.as_p }}
-  <div class="d-grid">
-    <button type="submit" class="btn btn-primary">สมัคร / เข้าสู่ระบบ</button>
-  </div>
-</form>
+<div class="register-page d-flex justify-content-center align-items-center vh-100">
+    <div class="card shadow-lg border-0 rounded-4 p-4 col-md-5 animate__animated animate__fadeIn">
+        
+        <!-- Header -->
+        <div class="text-center mb-4">
+            <h2 class="fw-bold text-primary">DetectQuiz</h2>
+            <p class="text-muted">สมัครสมาชิกเพื่อเริ่มใช้งานระบบตรวจข้อสอบอัจฉริยะ</p>
+        </div>
+
+        <!-- Flash messages -->
+        {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} text-center">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+
+        <!-- Non-field errors -->
+        {% if form.non_field_errors %}
+            <div class="alert alert-danger text-center">
+                {% for error in form.non_field_errors %}
+                    {{ error }}
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <!-- Registration form -->
+        <form method="post" class="needs-validation" novalidate>
+            {% csrf_token %}
+            
+            <!-- Username -->
+            <div class="form-floating mb-3">
+                {{ form.username }}
+                {{ form.username.errors }}
+                <label for="{{ form.username.id_for_label }}">ชื่อผู้ใช้</label>
+            </div>
+
+            <!-- Email -->
+            <div class="form-floating mb-3">
+                {{ form.email }}
+                {{ form.email.errors }}
+                <label for="{{ form.email.id_for_label }}">อีเมล</label>
+            </div>
+
+            <!-- Password1 -->
+            <div class="form-floating mb-3">
+                {{ form.password1 }}
+                {{ form.password1.errors }}
+                <label for="{{ form.password1.id_for_label }}">รหัสผ่าน</label>
+            </div>
+
+            <!-- Password2 -->
+            <div class="form-floating mb-3">
+                {{ form.password2 }}
+                {{ form.password2.errors }}
+                <label for="{{ form.password2.id_for_label }}">ยืนยันรหัสผ่าน</label>
+            </div>
+
+            <!-- Role selection -->
+            <div class="mb-3 d-flex justify-content-start gap-3">
+                <div class="form-check">
+                    {{ form.is_teacher }}
+                    {{ form.is_teacher.label_tag }}
+                    {{ form.is_teacher.errors }}
+                </div>
+                <div class="form-check">
+                    {{ form.is_student }}
+                    {{ form.is_student.label_tag }}
+                    {{ form.is_student.errors }}
+                </div>
+            </div>
+
+            <!-- Submit -->
+            <div class="d-grid mt-3">
+                <button type="submit" class="btn btn-gradient-primary fw-bold">
+                    สมัครสมาชิก
+                </button>
+            </div>
+        </form>
+
+        <!-- Login link -->
+        <p class="text-center text-muted mt-3">
+            มีบัญชีแล้ว? <a href="{% url 'login' %}" class="text-primary fw-semibold">เข้าสู่ระบบ</a>
+        </p>
+    </div>
+</div>
 {% endblock %}

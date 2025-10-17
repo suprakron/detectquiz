@@ -1,0 +1,54 @@
+body {
+    font-family: 'Prompt', sans-serif;
+}
+
+.register-page {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #e0f0ff, #f5f7ff);
+    padding: 1rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.card {
+    padding: 2rem;
+    border-radius: 1.5rem;
+    box-shadow: 0 1rem 2.5rem rgba(0,0,0,0.2);
+    background-color: #fff;
+}
+
+.form-floating input {
+    border-radius: 0.75rem;
+    border: 1px solid #ced4da;
+    padding: 0.8rem 0.75rem;
+}
+
+.form-floating input:focus {
+    border-color: #6610f2;
+    box-shadow: 0 0 0 0.2rem rgba(102,16,242,.25);
+}
+
+.btn-gradient-primary {
+    background: linear-gradient(135deg, #0d6efd, #6610f2);
+    color: #fff;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    padding: 0.6rem 1.5rem;
+}
+
+.btn-gradient-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0.5rem 1.5rem rgba(102,16,242,0.4);
+}
+
+.alert {
+    border-radius: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.form-check-label {
+    font-weight: 500;
+}

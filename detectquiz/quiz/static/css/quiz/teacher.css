@@ -1,0 +1,207 @@
+/* Teacher Dashboard Styles */
+.teacher-dashboard {
+    padding: 2rem 0;
+}
+
+.teacher-dashboard h2 {
+    font-family: 'Prompt', sans-serif;
+    font-weight: 600;
+    font-size: 2rem;
+}
+
+.teacher-dashboard .card {
+    border-radius: 16px;
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+}
+
+.teacher-dashboard .card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
+}
+
+.teacher-dashboard .card-header {
+    border-bottom: none;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.teacher-dashboard .card-body {
+    padding: 1rem;
+}
+
+.teacher-dashboard .btn {
+    border-radius: 12px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.teacher-dashboard .btn:hover {
+    transform: scale(1.05);
+}
+
+.teacher-dashboard table th,
+.teacher-dashboard table td {
+    vertical-align: middle;
+    text-align: center;
+}
+
+.teacher-dashboard table th {
+    font-weight: 600;
+}
+
+.teacher-dashboard table td a.btn {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.85rem;
+}
+
+.teacher-dashboard .text-muted i {
+    font-size: 1.1rem;
+    vertical-align: middle;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .teacher-dashboard h2 {
+        font-size: 1.5rem;
+    }
+
+    .teacher-dashboard .btn {
+        font-size: 0.8rem;
+        padding: 0.3rem 0.5rem;
+    }
+
+    .teacher-dashboard table th,
+    .teacher-dashboard table td {
+        font-size: 0.85rem;
+    }
+}
+
+
+
+
+/**craete subject  */
+/* Card โมเดิร์น */
+.teacher-dashboard .card {
+    background: #ffffff;
+    border-radius: 2rem;
+    padding: 3rem 2rem;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    transition: transform 0.4s ease, box-shadow 0.4s ease;
+}
+
+.teacher-dashboard .card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.15);
+}
+
+/* Floating labels */
+.teacher-dashboard .form-floating input,
+.teacher-dashboard .form-floating select {
+    height: 60px;
+    border-radius: 1rem;
+    padding: 1rem;
+    border: 1px solid #ddd;
+    font-size: 1rem;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.teacher-dashboard .form-floating input:focus,
+.teacher-dashboard .form-floating select:focus {
+    border-color: #6610f2;
+    box-shadow: 0 0 8px rgba(102, 16, 242, 0.3);
+    outline: none;
+}
+
+/* Gradient Button */
+.btn-gradient-success {
+    background: linear-gradient(135deg, #28a745, #20c997);
+    color: #fff;
+    border-radius: 50px;
+    padding: 0.6rem 2rem;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.btn-gradient-success:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(40, 167, 69, 0.4);
+}
+
+/* Outline secondary button */
+.btn-outline-secondary {
+    border-radius: 50px;
+    padding: 0.6rem 2rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-outline-secondary:hover {
+    background: #f8f9fa;
+    transform: translateY(-2px);
+}
+
+/* Card heading icon */
+.teacher-dashboard h3 i {
+    font-size: 2rem;
+    vertical-align: middle;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .teacher-dashboard .card {
+        padding: 2rem 1.5rem;
+    }
+
+    .teacher-dashboard .form-floating input,
+    .teacher-dashboard .form-floating select {
+        height: 55px;
+        font-size: 0.95rem;
+    }
+
+    .btn-gradient-success,
+    .btn-outline-secondary {
+        padding: 0.5rem 1.5rem;
+        font-size: 0.9rem;
+    }
+}
+
+/* Gradient ปุ่มสำหรับ TestForm */
+.btn-gradient-primary {
+    background: linear-gradient(135deg, #0d6efd, #6610f2);
+    color: #fff;
+    border-radius: 50px;
+    padding: 0.6rem 2rem;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.btn-gradient-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(102, 16, 242, 0.4);
+}
+
+
+/* Gradient ปุ่มสี Warning */
+/* Gradient ปุ่มสีฟ้าโมเดิร์น */
+.btn-gradient-primary {
+    background: linear-gradient(135deg, #0d6efd, #6610f2);
+    color: #fff;
+    border-radius: 50px;
+    padding: 0.6rem 2rem;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.btn-gradient-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(102, 16, 242, 0.4);
+}
+
+.gradient-text {
+    background: linear-gradient(135deg, #0d6efd, #6610f2);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}

@@ -1,0 +1,64 @@
+body {
+    font-family: 'Prompt', sans-serif;
+    background-color: #f8f9fa;
+    /* สีพื้นหลังอ่อนหรือขาว */
+}
+
+.login-page {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.card {
+    padding: 2rem;
+    border-radius: 1rem;
+    box-shadow: 0 0.5rem 2rem rgba(0, 0, 0, 0.15);
+}
+
+.btn-gradient-primary {
+    background: linear-gradient(135deg, #0d6efd, #6610f2);
+    color: #fff;
+    border-radius: 50px;
+    padding: 0.6rem 2rem;
+    font-size: 1rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-gradient-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0.5rem 1.5rem rgba(102, 16, 242, 0.4);
+}
+
+.form-floating>label {
+    font-weight: 500;
+}
+
+.alert {
+    border-radius: 12px;
+    margin-bottom: 1rem;
+}
+
+.btn-outline-primary,
+.btn-outline-success {
+    border-radius: 50px;
+    font-weight: 500;
+    padding: 0.45rem 1rem;
+    transition: all 0.3s ease;
+}
+
+.btn-outline-primary:hover {
+    background-color: #0d6efd;
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 0.5rem 1rem rgba(13, 110, 253, 0.4);
+}
+
+.btn-outline-success:hover {
+    background-color: #198754;
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 0.5rem 1rem rgba(25, 135, 84, 0.4);
+}

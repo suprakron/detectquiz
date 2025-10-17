@@ -1,35 +1,50 @@
 {% extends 'quiz/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/accounts/login.css' %}">
+{% endblock %}
+
 {% block content %}
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-5">
-            <div class="card shadow-lg border-0 rounded-4">
-                <div class="card-body p-4">
-                    <h3 class="text-center mb-3">เข้าสู่ระบบ</h3>
-                    {% if messages %}
-                        {% for message in messages %}
-                            <div class="alert alert-{{ message.tags }} text-center">{{ message }}</div>
-                        {% endfor %}
-                    {% endif %}
-                    <form method="post">
-                        {% csrf_token %}
-                        <div class="mb-3">
-                            <label class="form-label">ชื่อผู้ใช้</label>
-                            <input type="text" name="username" class="form-control" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">รหัสผ่าน</label>
-                            <input type="password" name="password" class="form-control" required>
-                        </div>
-                        <button type="submit" class="btn btn-primary w-100">เข้าสู่ระบบ</button>
-                    </form>
-                    <hr>
-                    <p class="text-center mt-2">
-                        ยังไม่มีบัญชี? <a href="{% url 'register' %}">สมัครสมาชิก</a>
-                    </p>
-                </div>
-            </div>
+<div class="login-page d-flex justify-content-center ">
+    <div class="card shadow-lg border-0 rounded-4 p-4 col-md-4 bg-white animate__animated animate__fadeIn">
+        <div class="text-center mb-4">
+            <h2 class="fw-bold text-primary">DetectQuiz</h2>
+            <p class="text-muted">เข้าสู่ระบบเพื่อจัดการข้อสอบและรายงานผล</p>
         </div>
+
+        {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} text-center">{{ message }}</div>
+        {% endfor %}
+        {% endif %}
+
+        <form method="post" class="needs-validation" novalidate>
+            {% csrf_token %}
+            <div class="form-floating mb-3">
+                <input type="text" name="username" class="form-control" id="username" placeholder="ชื่อผู้ใช้" required>
+                <label for="username">ชื่อผู้ใช้</label>
+            </div>
+            <div class="form-floating mb-3">
+                <input type="password" name="password" class="form-control" id="password" placeholder="รหัสผ่าน"
+                    required>
+                <label for="password">รหัสผ่าน</label>
+            </div>
+
+            <button type="submit" class="btn btn-gradient-primary w-100 fw-bold mb-3">
+                เข้าสู่ระบบ
+            </button>
+        </form>
+
+        <div class="d-flex justify-content-between align-items-center mt-3">
+            <a href="{% url 'password_reset' %}" class="btn btn-outline-primary btn-sm flex-fill me-2">
+                <i class="bi bi-key-fill me-1"></i> ลืมรหัสผ่าน?
+            </a>
+            <a href="{% url 'register' %}" class="btn btn-outline-success btn-sm flex-fill ms-2">
+                <i class="bi bi-person-plus-fill me-1"></i> สมัครสมาชิก
+            </a>
+        </div>
+
     </div>
 </div>
 {% endblock %}

@@ -1,0 +1,69 @@
+   body {
+      font-family: 'Prompt', sans-serif;
+      background: linear-gradient(135deg, #f8fafc, #eef2f7);
+      min-height: 100vh;
+    }
+
+    /* Navbar Styling */
+    .navbar {
+      background: linear-gradient(90deg, #007bff, #00b4d8);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    .navbar-brand {
+      font-weight: 700;
+      font-size: 1.5rem;
+      letter-spacing: 0.5px;
+      color: #fff !important;
+    }
+
+    .navbar-text {
+      color: #f8f9fa !important;
+      font-weight: 500;
+    }
+
+    /* Container Styling */
+    .container {
+      animation: fadeIn 0.4s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Card Style (ใช้ในแต่ละหน้า content) */
+    .modern-card {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+      padding: 24px;
+      transition: all 0.3s ease;
+    }
+
+    .modern-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+    }
+
+    /* Footer */
+    footer {
+      margin-top: 50px;
+      text-align: center;
+      color: #6c757d;
+      font-size: 0.9rem;
+    }
+
+    footer a {
+      color: #007bff;
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .navbar-brand { font-size: 1.3rem; }
+    }

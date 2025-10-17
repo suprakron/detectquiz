@@ -1,23 +1,54 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from .models import User
+from django.contrib.auth.forms import SetPasswordForm
 
+# class UserRegisterForm(UserCreationForm):
+#     is_teacher = forms.BooleanField(required=False)
+#     is_student = forms.BooleanField(required=False)
 
+#     class Meta:
+#         model = User
+#         fields = [
+#             "username",
+#             "email",
+#             "password1",
+#             "password2",
+#             "is_teacher",
+#             "is_student",
+#         ]
 class UserRegisterForm(UserCreationForm):
-    is_teacher = forms.BooleanField(required=False)
-    is_student = forms.BooleanField(required=False)
+    username = forms.CharField(
+        label="ชื่อผู้ใช้",
+        max_length=150,
+        widget=forms.TextInput(attrs={'class':'form-control','placeholder':'ชื่อผู้ใช้'})
+    )
+    email = forms.EmailField(
+        label="อีเมล",
+        widget=forms.EmailInput(attrs={'class':'form-control','placeholder':'อีเมล'})
+    )
+    password1 = forms.CharField(
+        label="รหัสผ่าน",
+        widget=forms.PasswordInput(attrs={'class':'form-control','placeholder':'รหัสผ่าน'})
+    )
+    password2 = forms.CharField(
+        label="ยืนยันรหัสผ่าน",
+        widget=forms.PasswordInput(attrs={'class':'form-control','placeholder':'ยืนยันรหัสผ่าน'})
+    )
+    is_teacher = forms.BooleanField(label="เป็นครู", required=False)
+    is_student = forms.BooleanField(label="เป็นนักเรียน", required=False)
 
     class Meta:
         model = User
-        fields = [
-            "username",
-            "email",
-            "password1",
-            "password2",
-            "is_teacher",
-            "is_student",
-        ]
+        fields = ["username","email","password1","password2","is_teacher","is_student"]
 
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.is_teacher = self.cleaned_data.get('is_teacher')
+        user.is_student = self.cleaned_data.get('is_student')
+        if commit:
+            user.save()
+        return user
 
 class RegisterForm(UserCreationForm):
     ROLE_CHOICES = [
@@ -40,3 +71,9 @@ class RegisterForm(UserCreationForm):
         if commit:
             user.save()
         return user
+
+class CustomSetPasswordForm(SetPasswordForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['new_password1'].widget.attrs.update({'class': 'form-control', 'placeholder': 'รหัสผ่านใหม่'})
+        self.fields['new_password2'].widget.attrs.update({'class': 'form-control', 'placeholder': 'ยืนยันรหัสผ่านใหม่'})
