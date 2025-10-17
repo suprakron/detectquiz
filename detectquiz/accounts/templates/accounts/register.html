@@ -1,0 +1,11 @@
+{% extends 'quiz/base.html' %}
+{% block content %}
+<h3 class="mb-4 text-center">สมัครสมาชิก / เข้าสู่ระบบ</h3>
+<form method="post" class="card p-4 shadow-sm mx-auto" style="max-width: 500px;">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <div class="d-grid">
+    <button type="submit" class="btn btn-primary">สมัคร / เข้าสู่ระบบ</button>
+  </div>
+</form>
+{% endblock %}

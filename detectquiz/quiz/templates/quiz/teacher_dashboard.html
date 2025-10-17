@@ -1,0 +1,32 @@
+{% extends 'quiz/base.html' %}
+{% block content %}
+<h2 class="mb-4">📘 แผงควบคุมครู</h2>
+
+<div class="mb-3">
+  <a href="{% url 'create_subject' %}" class="btn btn-success me-2">➕ สร้างรายวิชา</a>
+  <a href="{% url 'create_test' %}" class="btn btn-primary me-2">🧾 สร้างแบบทดสอบ</a>
+  <a href="{% url 'enter_scores' %}" class="btn btn-warning">✏️ กรอกคะแนนนักเรียน</a>
+  <a href="{% url 'scorereal' %}" class="btn btn-warning">✏️ ดูคะแนน</a>
+</div>
+
+<table class="table table-striped">
+  <thead class="table-primary">
+    <tr>
+      <th>รายวิชา</th>
+      <th>ระดับชั้น</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for subject in subjects %}
+    <tr>
+      <td>{{ subject.name }}</td>
+      <td>{{ subject.grade_level }}</td>
+    </tr>
+    {% empty %}
+    <tr>
+      <td colspan="2" class="text-center text-muted">ยังไม่มีรายวิชา</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

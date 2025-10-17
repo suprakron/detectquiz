@@ -1,0 +1,33 @@
+{% extends 'quiz/base.html' %}
+{% block content %}
+<h2 class="mb-4">🎓 คะแนนของฉัน</h2>
+
+<a href="{% url 'download_pdf' %}" class="btn btn-danger mb-3">⬇️ ดาวน์โหลดรายงาน PDF</a>
+
+<table class="table table-bordered">
+  <thead class="table-info">
+    <tr>
+      <th>ชื่อข้อสอบ</th>
+      <th>คะแนนข้อสอบ</th>
+      <th>พฤติกรรม</th>
+      <th>กลางภาค</th>
+      <th>ปลายภาค</th>
+      <th>คะแนนเก็บ</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for score in scores %}
+    <tr>
+      <td>{{ score.test.title }}</td>
+      <td>{{ score.score }}</td>
+      <td>{{ score.behavior_score }}</td>
+      <td>{{ score.midterm_score }}</td>
+      <td>{{ score.final_score }}</td>
+      <td>{{ score.assignment_score }}</td>
+    </tr>
+  {% empty %}
+    <tr><td colspan="6" class="text-center text-muted">ยังไม่มีคะแนน</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endblock %}
