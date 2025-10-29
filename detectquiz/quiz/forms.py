@@ -6,23 +6,31 @@ from .models import Subject, Test, StudentTestScore,StudentInfo
 #         model = Subject
 #         fields = ['name', 'grade_level']
 
+# forms.py
 class SubjectForm(forms.ModelForm):
+    grade_level = forms.ChoiceField(label="ระดับชั้น", choices=[])
+    classroom = forms.ChoiceField(label="ห้อง", choices=[])
+
     class Meta:
         model = Subject
-        fields = ['name', 'grade_level']
+        fields = ['name', 'grade_level', 'classroom']
         widgets = {
-            'name': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'ชื่อรายวิชา',  
-            }),
-            'grade_level': forms.Select(attrs={
-                'class': 'form-select',
-            }),
+            'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'ชื่อรายวิชา'}),
+            'grade_level': forms.Select(attrs={'class': 'form-select'}),
+            'classroom': forms.Select(attrs={'class': 'form-select'}),
         }
-        labels = {
-            'name': 'ชื่อรายวิชา',
-            'grade_level': 'ระดับชั้น',
-        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        grade_levels = StudentInfo.objects.values_list('grade_level', flat=True).distinct()
+        classrooms = StudentInfo.objects.values_list('classroom', flat=True).distinct()
+        self.fields['grade_level'].choices = [('', 'เลือกระดับชั้น')] + [(g, g) for g in grade_levels]
+        self.fields['classroom'].choices = [('', 'เลือกห้อง')] + [(c, c) for c in classrooms]
+
+
+
+
+
 # class TestForm(forms.ModelForm):
 #     class Meta:
 #         model = Test

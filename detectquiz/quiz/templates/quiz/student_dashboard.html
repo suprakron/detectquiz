@@ -1,33 +1,83 @@
 {% extends 'quiz/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+  .subject-card {
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+    padding: 20px;
+  }
+  .subject-header {
+    font-weight: bold;
+    font-size: 1.2rem;
+    color: #0d6efd;
+    margin-bottom: 15px;
+  }
+  .table thead {
+    background-color: #0d6efd;
+    color: #fff;
+  }
+  .btn-download {
+    background: linear-gradient(90deg, #f87171, #ef4444);
+    color: #fff;
+    border: none;
+  }
+  .btn-download:hover {
+    background: linear-gradient(90deg, #ef4444, #dc2626);
+  }
+</style>
+{% endblock %}
+
 {% block content %}
-<h2 class="mb-4">🎓 คะแนนของฉัน</h2>
+<div class="container py-5">
 
-<a href="{% url 'download_pdf' %}" class="btn btn-danger mb-3">⬇️ ดาวน์โหลดรายงาน PDF</a>
+  <h1 class="text-center mb-4">🎓 คะแนนของฉัน</h1>
 
-<table class="table table-bordered">
-  <thead class="table-info">
-    <tr>
-      <th>ชื่อข้อสอบ</th>
-      <th>คะแนนข้อสอบ</th>
-      <th>พฤติกรรม</th>
-      <th>กลางภาค</th>
-      <th>ปลายภาค</th>
-      <th>คะแนนเก็บ</th>
-    </tr>
-  </thead>
-  <tbody>
-  {% for score in scores %}
-    <tr>
-      <td>{{ score.test.title }}</td>
-      <td>{{ score.score }}</td>
-      <td>{{ score.behavior_score }}</td>
-      <td>{{ score.midterm_score }}</td>
-      <td>{{ score.final_score }}</td>
-      <td>{{ score.assignment_score }}</td>
-    </tr>
-  {% empty %}
-    <tr><td colspan="6" class="text-center text-muted">ยังไม่มีคะแนน</td></tr>
-  {% endfor %}
-  </tbody>
-</table>
+  <a href="{% url 'download_pdf' %}" class="btn btn-download mb-4">
+    ⬇️ ดาวน์โหลดรายงาน PDF
+  </a>
+
+  {% if scores %}
+    {% regroup scores by test.subject as subjects %}
+    {% for subject in subjects %}
+    <div class="subject-card">
+      <div class="subject-header">
+        วิชา: {{ subject.grouper.name }} ({{ subject.grouper.grade_level }}-{{ subject.grouper.classroom }})
+      </div>
+      <div class="table-responsive">
+        <table class="table table-bordered table-striped mb-0">
+          <thead>
+            <tr>
+              <th>ชื่อข้อสอบ</th>
+              <th>คะแนนข้อสอบ</th>
+              <th>พฤติกรรม</th>
+              <th>กลางภาค</th>
+              <th>ปลายภาค</th>
+              <th>คะแนนเก็บ</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for score in subject.list %}
+            <tr>
+              <td>{{ score.test.title }}</td>
+              <td>{{ score.score|default:"-" }}</td>
+              <td>{{ score.behavior_score|default:"-" }}</td>
+              <td>{{ score.midterm_score|default:"-" }}</td>
+              <td>{{ score.final_score|default:"-" }}</td>
+              <td>{{ score.assignment_score|default:"-" }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    {% endfor %}
+  {% else %}
+    <p class="text-muted text-center">ยังไม่มีคะแนน</p>
+  {% endif %}
+
+</div>
 {% endblock %}

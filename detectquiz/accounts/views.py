@@ -2,30 +2,62 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from .forms import UserRegisterForm
+from .forms import UserRegisterForm, StudentProfileForm, TeacherProfileForm
 from .models import User
+from quiz.models import StudentInfo 
+from django.http import JsonResponse
 
 def register(request):
     if request.method == "POST":
-        form = UserRegisterForm(request.POST)
-        print("POST data:", request.POST)
-        
-        if form.is_valid():
-            user = form.save()
-            login(request, user)
-            if user.is_teacher:
-                return redirect("teacher_dashboard")  
-            elif user.is_student:
-                return redirect("student_dashboard")  
-            else:
-                return redirect("login")  
+        user_form = UserRegisterForm(request.POST)
+        student_form = StudentProfileForm(request.POST)
+        teacher_form = TeacherProfileForm(request.POST)
+
+        if user_form.is_valid():
+            user = user_form.save(commit=False)
+            role = user_form.cleaned_data.get('role')
+            user.is_student = role == 'student'
+            user.is_teacher = role == 'teacher'
+            user.save()
+
+            if user.is_student:
+                if student_form.is_valid():
+                    profile = student_form.save(commit=False)
+                    profile.user = user
+                    profile.save()
+                    login(request, user)
+                    return redirect('student_dashboard')
+                else:
+                    print(student_form.errors) 
+                    messages.error(request, "ตรวจสอบข้อมูลนักเรียน")
+
+            elif user.is_teacher:
+                if teacher_form.is_valid():
+                    profile = teacher_form.save(commit=False)
+                    profile.user = user
+                    profile.save()
+                    login(request, user)
+                    return redirect('teacher_dashboard')
+                else:
+                    print(teacher_form.errors) 
+                    messages.error(request, "ตรวจสอบข้อมูลครู")
+
         else:
-  
-            print("Form errors:", form.errors)
-            messages.error(request, "กรุณาตรวจสอบข้อมูลให้ถูกต้อง")
+            print(user_form.errors)  
+            messages.error(request, "ตรวจสอบข้อมูลผู้ใช้")
+
     else:
-        form = UserRegisterForm()
-    return render(request, "accounts/register.html", {"form": form})
+        user_form = UserRegisterForm()
+        student_form = StudentProfileForm()
+        teacher_form = TeacherProfileForm()
+
+    context = {
+        'user_form': user_form,
+        'student_form': student_form,
+        'teacher_form': teacher_form,
+    }
+    return render(request, "accounts/register.html", context)
+
 
 def login_view(request):
     if request.method == "POST":
@@ -58,3 +90,17 @@ def password_reset_request(request):
         else:
             messages.error(request, "กรุณากรอกอีเมลของคุณ")
     return render(request, "accounts/forgotpassword.html")
+
+def get_student_info(request):
+    student_id = request.GET.get('student_id')
+    try:
+        student = StudentInfo.objects.get(student_id=student_id)
+        data = {
+            "first_name": student.first_name,
+            "last_name": student.last_name,
+            "grade_level": student.grade_level,
+            "classroom": student.classroom,
+        }
+        return JsonResponse({"success": True, "data": data})
+    except StudentInfo.DoesNotExist:
+        return JsonResponse({"success": False, "data": {}})

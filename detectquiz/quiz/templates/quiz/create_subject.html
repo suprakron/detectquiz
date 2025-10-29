@@ -3,46 +3,62 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/quiz/teacher.css' %}">
+<style>
+  .card {
+    background-color: #fff;
+    border-radius: 16px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    transition: 0.3s;
+  }
+
+  .card:hover {
+    transform: translateY(-4px);
+  }
+
+  .btn-gradient-success {
+    background: linear-gradient(90deg, #4ade80, #22c55e);
+    color: #fff;
+    border: none;
+  }
+
+  .btn-gradient-success:hover {
+    background: linear-gradient(90deg, #22c55e, #16a34a);
+  }
+</style>
 {% endblock %}
 
 {% block content %}
 <div class="teacher-dashboard py-5">
   <div class="row justify-content-center">
     <div class="col-md-6">
-
-      <!-- Modern Card -->
       <div class="card shadow-lg rounded-4 border-0 p-5 animate__animated animate__fadeIn">
         <h3 class="text-center text-primary fw-bold mb-5">
           <i class="bi bi-book-half me-2"></i> สร้างรายวิชาใหม่
         </h3>
-
         <form method="post" class="needs-validation" novalidate>
           {% csrf_token %}
-
           {% for field in form %}
           <div class="form-floating mb-4">
             {{ field }}
             <label for="{{ field.id_for_label }}">{{ field.label }}</label>
             {% if field.errors %}
-              <div class="invalid-feedback d-block">
-                {{ field.errors|striptags }}
-              </div>
+            <div class="invalid-feedback d-block">{{ field.errors|striptags }}</div>
             {% endif %}
           </div>
           {% endfor %}
 
           <div class="d-flex justify-content-between mt-4">
             <button type="submit" class="btn btn-gradient-success fw-bold">
-              <i class="bi bi-check-circle me-1"></i> บันทึก
+              บันทึก
             </button>
-            <a href="{% url 'teacher_dashboard' %}" class="btn btn-outline-secondary fw-bold">
-              <i class="bi bi-arrow-left me-1"></i> กลับ
-            </a>
+            <a href="{% url 'teacher_dashboard' %}" class="btn btn-outline-secondary fw-bold">กลับ</a>
           </div>
         </form>
-      </div>
 
+
+      </div>
     </div>
   </div>
 </div>
+
 {% endblock %}

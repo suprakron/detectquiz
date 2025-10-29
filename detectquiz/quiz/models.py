@@ -2,12 +2,13 @@ from django.db import models
 from accounts.models import User
 
 class Subject(models.Model):
-    name = models.CharField(max_length=100)
-    grade_level = models.CharField(max_length=50)
+    name = models.CharField(max_length=100, verbose_name="ชื่อรายวิชา")
+    grade_level = models.CharField(max_length=20, verbose_name="ระดับชั้น")
+    classroom = models.CharField(max_length=20, verbose_name="ห้องเรียน")
     teacher = models.ForeignKey(User, on_delete=models.CASCADE, related_name='subjects')
 
     def __str__(self):
-        return f"{self.name} ({self.grade_level})"
+        return f"{self.name} ({self.grade_level} - {self.classroom})"
 
 class Test(models.Model):
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE)

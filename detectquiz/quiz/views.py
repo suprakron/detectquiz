@@ -3,14 +3,16 @@ import requests
 import json
 from datetime import datetime
 from django.contrib.auth.decorators import login_required
-from .models import Subject, Test, StudentTestScore,StudentInfo
+from .models import Subject, Test, StudentTestScore,StudentInfo 
+from accounts.models import StudentProfile 
 from .forms import SubjectForm, TestForm, StudentTestScoreForm,StudentForm, ExcelUploadForm
 import pandas as pd
 from django.contrib import messages
 from collections import namedtuple
 from django.contrib.auth import get_user_model
-
-
+from django.conf import settings
+from django.core.mail import send_mail
+from django.utils.safestring import mark_safe
 
 
 @login_required
@@ -18,10 +20,7 @@ def teacher_dashboard(request):
     subjects = Subject.objects.filter(teacher=request.user)
     return render(request, 'quiz/teacher_dashboard.html', {'subjects': subjects})
 
-# @login_required
-# def student_dashboard(request):
-#     scores = StudentTestScore.objects.filter(student=request.user)
-#     return render(request, 'quiz/student_dashboard.html', {'scores': scores})
+
 StudentTestScoreMock = namedtuple('StudentTestScoreMock', [
     'test', 'score', 'behavior_score', 'midterm_score', 'final_score', 'assignment_score'
 ])
@@ -29,51 +28,18 @@ TestMock = namedtuple('TestMock', ['title'])
 
 @login_required
 def student_dashboard(request):
+    try:
+        student_info = StudentInfo.objects.get(student_id=request.user.username)
+    except StudentInfo.DoesNotExist:
+        student_info = None
+    scores = StudentTestScore.objects.filter(student=request.user).select_related('test', 'test__subject')
 
-    scores = [
-        StudentTestScoreMock(
-            test=TestMock(title="แบบทดสอบคณิตศาสตร์ 1"),
-            score=85,
-            behavior_score=9,
-            midterm_score=40,
-            final_score=35,
-            assignment_score=10
-        ),
-        StudentTestScoreMock(
-            test=TestMock(title="แบบทดสอบวิทยาศาสตร์ 1"),
-            score=78,
-            behavior_score=8,
-            midterm_score=30,
-            final_score=40,
-            assignment_score=8
-        ),
-        StudentTestScoreMock(
-            test=TestMock(title="แบบทดสอบภาษาอังกฤษ 1"),
-            score=92,
-            behavior_score=10,
-            midterm_score=45,
-            final_score=40,
-            assignment_score=7
-        ),
-        StudentTestScoreMock(
-            test=TestMock(title="แบบทดสอบประวัติศาสตร์ 1"),
-            score=88,
-            behavior_score=9,
-            midterm_score=38,
-            final_score=40,
-            assignment_score=10
-        ),
-        StudentTestScoreMock(
-            test=TestMock(title="แบบทดสอบภูมิศาสตร์ 1"),
-            score=80,
-            behavior_score=7,
-            midterm_score=35,
-            final_score=38,
-            assignment_score=7
-        ),
-    ]
+    return render(request, 'quiz/student_dashboard.html', {
+        'student_info': student_info,
+        'scores': scores,
+    })
 
-    return render(request, 'quiz/student_dashboard.html', {'scores': scores})
+
 @login_required
 def create_subject(request):
     if request.method == "POST":
@@ -85,6 +51,7 @@ def create_subject(request):
             return redirect('teacher_dashboard')
     else:
         form = SubjectForm()
+
     return render(request, 'quiz/create_subject.html', {'form': form})
 
 @login_required
@@ -116,27 +83,27 @@ def result(request):
 
 
 User = get_user_model()
-
+@login_required
 def student_score_chart(request, student_id):
-    student = get_object_or_404(User, id=student_id)
-    scores = StudentTestScore.objects.filter(student=student)
+    student_scores = StudentTestScore.objects.filter(student__id=student_id)
 
-    labels = [score.test.title for score in scores]
-    total_scores = [score.score or 0 for score in scores]
-    behavior_scores = [score.behavior_score or 0 for score in scores]
-    midterm_scores = [score.midterm_score or 0 for score in scores]
-    final_scores = [score.final_score or 0 for score in scores]
-    assignment_scores = [score.assignment_score or 0 for score in scores]
+    labels = [score.test.title for score in student_scores]
+    scores = [score.score or 0 for score in student_scores]
+    behavior_scores = [score.behavior_score or 0 for score in student_scores]
+    midterm_scores = [score.midterm_score or 0 for score in student_scores]
+    final_scores = [score.final_score or 0 for score in student_scores]
+    assignment_scores = [score.assignment_score or 0 for score in student_scores]
 
     context = {
-        'student': student,
-        'labels': labels,
-        'scores': total_scores,
-        'behavior_scores': behavior_scores,
-        'midterm_scores': midterm_scores,
-        'final_scores': final_scores,
-        'assignment_scores': assignment_scores,
+        "student": student_scores.first().student if student_scores.exists() else None,
+        "labels": mark_safe(json.dumps(labels)),
+        "scores": mark_safe(json.dumps(scores)),
+        "behavior_scores": mark_safe(json.dumps(behavior_scores)),
+        "midterm_scores": mark_safe(json.dumps(midterm_scores)),
+        "final_scores": mark_safe(json.dumps(final_scores)),
+        "assignment_scores": mark_safe(json.dumps(assignment_scores)),
     }
+
     return render(request, 'quiz/student_score_chart.html', context)
 
 @login_required
@@ -183,8 +150,48 @@ def addstudent(request):
     return render(request, 'quiz/add_student.html', context)
 
 
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
+from .models import StudentInfo, StudentTestScore
+
+@login_required
+def parentreport(request):
+    selected_grade = request.GET.get('grade', '')
+    grade_levels = StudentInfo.objects.values_list('grade_level', flat=True).distinct()
+    if selected_grade:
+        students = StudentInfo.objects.filter(grade_level=selected_grade)
+    else:
+        students = StudentInfo.objects.all()
+
+    student_data = []
+    for s in students:
+        scores = StudentTestScore.objects.filter(student__username=s.student_id)
+        if scores.exists():
+            avg_score = sum([sc.score or 0 for sc in scores]) / len(scores)
+        else:
+            avg_score = 0
+
+        student_data.append({
+            'student_id': s.student_id,
+            'student_name': f"{s.first_name} {s.last_name}",
+            'grade_level': s.grade_level,
+            'classroom': s.classroom,
+            'guardian_name': s.guardian_name,
+            'guardian_email': s.guardian_email,
+            'average_score': round(avg_score, 2)
+        })
+
+    return render(request, 'quiz/parentreport.html', {
+        'students': student_data,
+        'grade_levels': grade_levels,
+        'selected_grade': selected_grade,
+    })
 
 
+def send_parent_notification(email, student_name, score):
+    subject = f"แจ้งคะแนนของ {student_name}"
+    message = f"เรียนผู้ปกครอง\n\nคะแนนของ {student_name} คือ {score}\n\nขอบคุณครับ"
+    send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [email])
 
 # @login_required
 # def score_realtime(request):

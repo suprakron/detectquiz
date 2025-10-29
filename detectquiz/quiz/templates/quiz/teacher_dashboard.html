@@ -3,49 +3,124 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/quiz/teacher.css' %}">
+<style>
+.teacher-dashboard {
+  background-color: #f9fafc;
+  border-radius: 12px;
+  padding: 2rem;
+  min-height: 100vh;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 2rem;
+}
+
+.page-header h2 {
+  color: #0d6efd;
+  font-weight: 700;
+}
+
+.action-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  margin-bottom: 2rem;
+}
+
+.action-card .card-body {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+}
+
+.action-card a.btn {
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.25s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.action-card a.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+}
+
+.card-header {
+  font-weight: 600;
+  font-size: 1.1rem;
+  background: linear-gradient(90deg, #007bff, #0056b3);
+  color: white;
+}
+
+.table thead {
+  background-color: #e9ecef;
+}
+
+.table-hover tbody tr:hover {
+  background-color: #f1f8ff;
+  transition: background-color 0.3s ease;
+}
+
+.btn-outline-primary:hover {
+  color: #fff !important;
+  background-color: #0d6efd !important;
+}
+
+.btn-outline-danger:hover {
+  color: #fff !important;
+  background-color: #dc3545 !important;
+}
+</style>
 {% endblock %}
 
 {% block content %}
-<div class="teacher-dashboard py-4">
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2 class="fw-bold text-primary mb-0">
-      <i class="bi bi-mortarboard-fill me-2"></i> หน้าหลักของครู
-    </h2>
-
+<div class="teacher-dashboard">
+  <!-- 🔹 ส่วนหัวหน้าเพจ -->
+  <div class="page-header">
+    <h2><i class="bi bi-mortarboard-fill me-2"></i>หน้าหลักของครู</h2>
   </div>
 
-
-  <div class="card shadow-sm border-0 mb-4">
-    <div class="card-body d-flex flex-wrap gap-2">
+  <!-- 🔹 ปุ่มเครื่องมือ -->
+  <div class="card action-card border-0">
+    <div class="card-body">
       <a href="{% url 'create_subject' %}" class="btn btn-success">
-        <i class="bi bi-book-half me-1"></i> สร้างรายวิชา
+        <i class="bi bi-book-half"></i> สร้างรายวิชา
       </a>
       <a href="{% url 'create_test' %}" class="btn btn-primary">
-        <i class="bi bi-file-earmark-text me-1"></i> สร้างแบบทดสอบ
+        <i class="bi bi-file-earmark-text"></i> สร้างแบบทดสอบ
       </a>
       <a href="{% url 'enter_scores' %}" class="btn btn-warning text-dark">
-        <i class="bi bi-pencil-square me-1"></i> กรอกคะแนนนักเรียน
+        <i class="bi bi-pencil-square"></i> กรอกคะแนนนักเรียน
       </a>
       <a href="{% url 'scorereal' %}" class="btn btn-info text-white">
-        <i class="bi bi-bar-chart-line me-1"></i> ดูคะแนนเรียลไทม์
+        <i class="bi bi-bar-chart-line"></i> ดูคะแนนเรียลไทม์
       </a>
-      <a href="{% url 'addstudent' %}" class="btn btn-info text-white">
-        <i class="bi bi-bar-chart-line me-1"></i> บันทึกข้อมูลนักเรียน
+      <a href="{% url 'addstudent' %}" class="btn btn-secondary text-white">
+        <i class="bi bi-person-plus"></i> บันทึกข้อมูลนักเรียน
       </a>
-      <a href="{% url 'result' %}" class="btn btn-info text-white">
-        <i class="bi bi-bar-chart-line me-1"></i> ดูข้อมูลสรุปรวม
+      <a href="{% url 'result' %}" class="btn btn-dark text-white">
+        <i class="bi bi-clipboard-data"></i> ดูข้อมูลสรุปรวม
+      </a>
+      <a href="{% url 'parentreport' %}" class="btn btn-danger text-white">
+        <i class="bi bi-envelope-fill"></i> แจ้งผู้ปกครอง
       </a>
     </div>
   </div>
 
-  <!-- ตารางรายวิชา -->
+  <!-- 🔹 ตารางรายวิชา -->
   <div class="card shadow-sm border-0">
-    <div class="card-header bg-primary text-white fw-semibold">
+    <div class="card-header">
       <i class="bi bi-journal-text me-1"></i> รายวิชาที่สร้างไว้
     </div>
     <div class="card-body p-0">
       <table class="table table-hover align-middle mb-0">
-        <thead class="table-light text-center">
+        <thead class="text-center">
           <tr>
             <th>ลำดับ</th>
             <th>รายวิชา</th>
@@ -56,15 +131,15 @@
         <tbody>
           {% for subject in subjects %}
           <tr>
-            <td class="text-center">{{ forloop.counter }}</td>
-            <td>{{ subject.name }}</td>
-            <td class="text-center">{{ subject.grade_level }}</td>
+            <td class="text-center fw-semibold text-secondary">{{ forloop.counter }}</td>
+            <td class="fw-semibold">{{ subject.name }}</td>
+            <td class="text-center text-primary">{{ subject.grade_level }}</td>
             <td class="text-center">
-              <a href="#" class="btn btn-outline-primary btn-sm">
-                <i class="bi bi-pencil-square"></i> แก้ไข
+              <a href="#" class="btn btn-outline-primary btn-sm px-3">
+                <i class="bi bi-pencil-square me-1"></i> แก้ไข
               </a>
-              <a href="#" class="btn btn-outline-danger btn-sm">
-                <i class="bi bi-trash3"></i> ลบ
+              <a href="#" class="btn btn-outline-danger btn-sm px-3">
+                <i class="bi bi-trash3 me-1"></i> ลบ
               </a>
             </td>
           </tr>

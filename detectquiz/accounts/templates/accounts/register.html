@@ -3,89 +3,265 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'accounts/css/register.css' %}">
+<style>
+    body {
+        background: linear-gradient(to right, #6a11cb, #2575fc);
+        min-height: 100vh;
+        font-family: 'Poppins', sans-serif;
+    }
+
+    .register-card {
+        background: #ffffff;
+        border-radius: 1.2rem;
+        padding: 2.5rem 2rem;
+        max-width: 520px;
+        width: 100%;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        transition: transform 0.3s ease;
+    }
+
+    .register-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .form-floating>input {
+        border-radius: 0.5rem;
+        padding: 1rem 0.75rem;
+        border: 1px solid #ced4da;
+    }
+
+    .btn-gradient-primary {
+        background: linear-gradient(45deg, #6a11cb, #2575fc);
+        border: none;
+        color: #fff;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        transition: all 0.3s ease;
+    }
+
+    .btn-gradient-primary:hover {
+        opacity: 0.9;
+        transform: scale(1.03);
+    }
+
+    #student-fields,
+    #teacher-fields {
+        margin-top: 1rem;
+        padding: 1rem 1.25rem;
+        border: 1px solid #dee2e6;
+        border-radius: 0.75rem;
+        background-color: #f8f9fa;
+        transition: all 0.3s ease;
+    }
+
+    #student-fields h6,
+    #teacher-fields h6 {
+        font-size: 1rem;
+        margin-bottom: 0.75rem;
+    }
+
+    label {
+        font-weight: 500;
+    }
+
+    .text-muted {
+        font-size: 0.9rem;
+    }
+
+    .alert {
+        border-radius: 0.75rem;
+        font-weight: 500;
+    }
+
+    .form-floating input:focus {
+        border-color: #6a11cb;
+        box-shadow: 0 0 0 0.2rem rgba(106, 17, 203, .25);
+    }
+
+    @media (max-width: 576px) {
+        .register-card {
+            padding: 2rem 1rem;
+        }
+    }
+    button{
+        background-color: #6a11cb;
+    }
+</style>
 {% endblock %}
 
 {% block content %}
-<div class="register-page d-flex justify-content-center align-items-center vh-100">
-    <div class="card shadow-lg border-0 rounded-4 p-4 col-md-5 animate__animated animate__fadeIn">
-  
+<div class="d-flex justify-content-center align-items-center vh-100">
+    <div class="register-card animate__animated animate__fadeIn">
+
         <div class="text-center mb-4">
             <h2 class="fw-bold text-primary">DetectQuiz</h2>
             <p class="text-muted">สมัครสมาชิกเพื่อเริ่มใช้งานระบบตรวจข้อสอบอัจฉริยะ</p>
         </div>
 
         {% if messages %}
-            {% for message in messages %}
-            <div class="alert alert-{{ message.tags }} text-center">{{ message }}</div>
-            {% endfor %}
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} text-center">{{ message }}</div>
+        {% endfor %}
         {% endif %}
 
         {% if form.non_field_errors %}
-            <div class="alert alert-danger text-center">
-                {% for error in form.non_field_errors %}
-                    {{ error }}
-                {% endfor %}
-            </div>
+        <div class="alert alert-danger text-center">
+            {% for error in form.non_field_errors %}
+            {{ error }}
+            {% endfor %}
+        </div>
         {% endif %}
 
-        <!-- Registration form -->
         <form method="post" class="needs-validation" novalidate>
             {% csrf_token %}
-            
+
             <!-- Username -->
             <div class="form-floating mb-3">
-                {{ form.username }}
-                {{ form.username.errors }}
-                <label for="{{ form.username.id_for_label }}">ชื่อผู้ใช้</label>
+                {{ user_form.username }}
+                {{ user_form.username.errors }}
+                <label for="{{ user_form.username.id_for_label }}">ชื่อผู้ใช้</label>
             </div>
 
             <!-- Email -->
             <div class="form-floating mb-3">
-                {{ form.email }}
-                {{ form.email.errors }}
-                <label for="{{ form.email.id_for_label }}">อีเมล</label>
+                {{ user_form.email }}
+                {{ user_form.email.errors }}
+                <label for="{{ user_form.email.id_for_label }}">อีเมล</label>
             </div>
 
-            <!-- Password1 -->
-            <div class="form-floating mb-3">
-                {{ form.password1 }}
-                {{ form.password1.errors }}
-                <label for="{{ form.password1.id_for_label }}">รหัสผ่าน</label>
+            <!-- Password -->
+            <div class="form-floating mb-3 position-relative">
+                <input type="password" name="{{ user_form.password1.name }}" id="{{ user_form.password1.id_for_label }}"
+                    class="form-control" placeholder="รหัสผ่าน" required>
+                <label for="{{ user_form.password1.id_for_label }}">รหัสผ่าน</label>
+                <i class="bi bi-lock-fill position-absolute top-50 end-0 translate-middle-y me-3 text-secondary"></i>
+                {{ user_form.password1.errors }}
             </div>
 
-            <!-- Password2 -->
-            <div class="form-floating mb-3">
-                {{ form.password2 }}
-                {{ form.password2.errors }}
-                <label for="{{ form.password2.id_for_label }}">ยืนยันรหัสผ่าน</label>
+            <!-- Confirm Password -->
+            <div class="form-floating mb-3 position-relative">
+                <input type="password" name="{{ user_form.password2.name }}" id="{{ user_form.password2.id_for_label }}"
+                    class="form-control" placeholder="ยืนยันรหัสผ่าน" required>
+                <label for="{{ user_form.password2.id_for_label }}">ยืนยันรหัสผ่าน</label>
+                <i
+                    class="bi bi-shield-lock-fill position-absolute top-50 end-0 translate-middle-y me-3 text-secondary"></i>
+                {{ user_form.password2.errors }}
             </div>
+
+            <!-- <div class="form-floating mb-3">
+                {{ user_form.password1 }}
+                {{ user_form.password1.errors }}
+                <label for="{{ user_form.password1.id_for_label }}">รหัสผ่าน</label>
+            </div>
+            <div class="form-floating mb-3">
+                {{ user_form.password2 }}
+                {{ user_form.password2.errors }}
+                <label for="{{ user_form.password2.id_for_label }}">ยืนยันรหัสผ่าน</label>
+            </div>   -->
 
             <!-- Role selection -->
-            <div class="mb-3 d-flex justify-content-start gap-3">
-                <div class="form-check">
-                    {{ form.is_teacher }}
-                    {{ form.is_teacher.label_tag }}
-                    {{ form.is_teacher.errors }}
-                </div>
-                <div class="form-check">
-                    {{ form.is_student }}
-                    {{ form.is_student.label_tag }}
-                    {{ form.is_student.errors }}
+            <div class="mb-3">
+                <label class="fw-semibold">ประเภทผู้ใช้งาน</label>
+                <div>
+                    {{ user_form.role }}
                 </div>
             </div>
 
-            <!-- Submit -->
+            <!-- Student fields -->
+            <div id="student-fields">
+                <h6 class="text-primary fw-semibold">ข้อมูลนักเรียน</h6>
+                <div class="form-floating mb-2">
+                    {{ student_form.student_id }}
+                    <label for="{{ student_form.student_id.id_for_label }}">รหัสนักเรียน</label>
+                </div>
+                <div class="form-floating mb-2">
+                    {{ student_form.first_name }}
+                    <label for="{{ student_form.first_name.id_for_label }}">ชื่อ</label>
+                </div>
+                <div class="form-floating mb-2">
+                    {{ student_form.last_name }}
+                    <label for="{{ student_form.last_name.id_for_label }}">นามสกุล</label>
+                </div>
+                <div class="form-floating mb-2">
+                    {{ student_form.grade_level }}
+                    <label for="{{ student_form.grade_level.id_for_label }}">ระดับชั้น</label>
+                </div>
+                <div class="form-floating mb-2">
+                    {{ student_form.classroom }}
+                    <label for="{{ student_form.classroom.id_for_label }}">ห้องเรียน</label>
+                </div>
+            </div>
+
+            <!-- Teacher fields -->
+            <div id="teacher-fields">
+                <h6 class="text-primary fw-semibold">ข้อมูลครู</h6>
+                <div class="form-floating mb-2">{{ teacher_form.first_name }}<label
+                        for="{{ teacher_form.first_name.id_for_label }}">ชื่อ</label></div>
+                <div class="form-floating mb-2">{{ teacher_form.last_name }}<label
+                        for="{{ teacher_form.last_name.id_for_label }}">นามสกุล</label></div>
+                <div class="form-floating mb-2">{{ teacher_form.position }}<label
+                        for="{{ teacher_form.position.id_for_label }}">ตำแหน่ง</label></div>
+                <div class="form-floating mb-2">{{ teacher_form.classroom }}<label
+                        for="{{ teacher_form.classroom.id_for_label }}">ประจำชั้น</label></div>
+                <div class="form-floating mb-2">{{ teacher_form.subjects }}<label
+                        for="{{ teacher_form.subjects.id_for_label }}">สอนรายวิชา</label></div>
+            </div>
+
+    
             <div class="d-grid mt-3">
-                <button type="submit" class="btn btn-gradient-primary fw-bold">
+                <button type="submit" class="btn">
                     สมัครสมาชิก
                 </button>
-            </div>
+       
         </form>
 
-        <!-- Login link -->
         <p class="text-center text-muted mt-3">
             มีบัญชีแล้ว? <a href="{% url 'login' %}" class="text-primary fw-semibold">เข้าสู่ระบบ</a>
         </p>
+
     </div>
 </div>
+
+<script>
+    const roleRadios = document.getElementsByName("role");
+    const studentFields = document.getElementById("student-fields");
+    const teacherFields = document.getElementById("teacher-fields");
+
+    function toggleFields() {
+        const selectedRole = Array.from(roleRadios).find(r => r.checked)?.value;
+        const isStudent = selectedRole === "student";
+        const isTeacher = selectedRole === "teacher";
+
+        studentFields.style.display = isStudent ? "block" : "none";
+        teacherFields.style.display = isTeacher ? "block" : "none";
+        studentFields.querySelectorAll("input").forEach(i => i.disabled = !isStudent);
+        teacherFields.querySelectorAll("input").forEach(i => i.disabled = !isTeacher);
+    }
+
+    roleRadios.forEach(r => r.addEventListener("change", toggleFields));
+    toggleFields();
+
+    // Fetch student info
+    const studentIdInput = document.getElementById("id_student_id");
+    studentIdInput?.addEventListener("change", function () {
+        const studentId = this.value;
+        if (!studentId) return;
+
+        fetch(`/get_student_info/?student_id=${studentId}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById("id_first_name").value = data.data.first_name;
+                    document.getElementById("id_last_name").value = data.data.last_name;
+                    document.getElementById("id_grade_level").value = data.data.grade_level;
+                    document.getElementById("id_classroom").value = data.data.classroom;
+                } else {
+                    document.getElementById("id_first_name").value = '';
+                    document.getElementById("id_last_name").value = '';
+                    document.getElementById("id_grade_level").value = '';
+                    document.getElementById("id_classroom").value = '';
+                }
+            });
+    });
+</script>
 {% endblock %}

@@ -1,0 +1,131 @@
+{% extends 'quiz/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/quiz/teacher.css' %}">
+<style>
+.teacher-dashboard {
+    background-color: #f9fafc;
+    border-radius: 16px;
+    padding: 2rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.filter-bar {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    gap: 1rem;
+}
+
+select.grade-filter {
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 1rem;
+}
+
+.filter-btn {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 0.5rem 1.2rem;
+    border-radius: 8px;
+    cursor: pointer;
+}
+.filter-btn:hover {
+    background-color: #0069d9;
+}
+
+.table {
+    width: 100%;
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 0 8px rgba(0,0,0,0.05);
+}
+.table thead {
+    background-color: #007bff;
+    color: white;
+    text-align: center;
+}
+.table td, .table th {
+    padding: 1rem;
+    text-align: center;
+    vertical-align: middle;
+}
+.notify-btn {
+    background: #28a745;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+.notify-btn:hover {
+    background: #218838;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="teacher-dashboard container">
+    <h3 class="text-center mb-4">📢 แจ้งคะแนนผู้ปกครอง</h3>
+
+    <!-- 🔹 ฟิลเตอร์เลือกระดับชั้น -->
+    <form method="get" class="filter-bar">
+        <label for="grade" class="fw-bold">เลือกระดับชั้น:</label>
+        <select id="grade" name="grade" class="grade-filter">
+            <option value="">ทั้งหมด</option>
+            {% for grade in grade_levels %}
+                <option value="{{ grade }}" {% if grade == selected_grade %}selected{% endif %}>{{ grade }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit" class="filter-btn">กรอง</button>
+    </form>
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>รหัสนักเรียน</th>
+                <th>ชื่อนักเรียน</th>
+                <th>ระดับชั้น / ห้อง</th>
+                <th>ชื่อผู้ปกครอง</th>
+                <th>อีเมลผู้ปกครอง</th>
+                <th>คะแนนเฉลี่ย</th>
+                <th>การแจ้งเตือน</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for student in students %}
+            <tr>
+                <td>{{ student.student_id }}</td>
+                <td>{{ student.student_name }}</td>
+                <td>{{ student.grade_level }} / {{ student.classroom }}</td>
+                <td>{{ student.guardian_name }}</td>
+                <td>{{ student.guardian_email }}</td>
+                <td>{{ student.average_score }}</td>
+                <td>
+                    <button type="button" class="notify-btn"
+                            onclick="notifyParent('{{ student.guardian_email }}', '{{ student.student_name }}', '{{ student.average_score }}')">
+                        แจ้งผู้ปกครอง
+                    </button>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="7" class="text-center text-muted py-3">ไม่มีข้อมูลนักเรียน</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script>
+function notifyParent(email, studentName, score) {
+    alert(`แจ้งผลคะแนนของ ${studentName} (${score}) ไปยังอีเมล: ${email}`);
+}
+</script>
+{% endblock %}
