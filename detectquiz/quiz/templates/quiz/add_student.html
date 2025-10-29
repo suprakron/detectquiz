@@ -1,0 +1,77 @@
+{% extends 'quiz/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/quiz/teacher.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="teacher-dashboard py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+
+            <div class="card shadow-lg rounded-4 border-0 p-5 animate__animated animate__fadeIn">
+
+                <!-- Header -->
+                <h3 class="text-center text-primary fw-bold mb-5">
+                    <i class="bi bi-file-earmark-text me-2"></i> จัดการข้อมูลนักเรียน
+                </h3>
+
+                <!-- ฟอร์มเดียว ครอบทั้งเพิ่มทีละคน + อัปโหลด Excel -->
+                <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+                    {% csrf_token %}
+
+                    <!-- Section: Add student individually -->
+                    <h5 class="text-primary fw-bold mb-3">
+                        <i class="bi bi-person-plus me-2"></i> เพิ่มนักเรียนทีละคน
+                    </h5>
+                    <div class="row">
+                        {% for field in form %}
+                        <div class="col-md-6 mb-4">
+                            <div class="form-floating">
+                                {{ field }}
+                                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                {% if field.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ field.errors|striptags }}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="d-flex justify-content-between mb-5">
+                        <button type="submit" name="submit_student" class="btn btn-primary fw-bold">
+                            <i class="bi bi-check-circle me-1"></i> บันทึกนักเรียน
+                        </button>
+                        <a href="{% url 'teacher_dashboard' %}" class="btn btn-outline-secondary fw-bold">
+                            <i class="bi bi-arrow-left me-1"></i> กลับ
+                        </a>
+                    </div>
+
+                    <!-- Section: Upload Excel -->
+                    <h5 class="text-primary fw-bold mb-3 text-center mt-5">
+                        <i class="bi bi-file-earmark-spreadsheet me-2"></i> อัปโหลดนักเรียนจาก Excel
+                    </h5>
+                    <div class="mb-4">
+                        {{ excel_form.file }}
+                        {% if excel_form.file.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ excel_form.file.errors|striptags }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="text-center mb-5">
+                        <button type="submit" name="upload_excel" class="btn btn-success fw-bold">
+                            <i class="bi bi-upload me-1"></i> อัปโหลด Excel
+                        </button>
+                    </div>
+
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

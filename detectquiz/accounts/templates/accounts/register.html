@@ -8,21 +8,18 @@
 {% block content %}
 <div class="register-page d-flex justify-content-center align-items-center vh-100">
     <div class="card shadow-lg border-0 rounded-4 p-4 col-md-5 animate__animated animate__fadeIn">
-        
-        <!-- Header -->
+  
         <div class="text-center mb-4">
             <h2 class="fw-bold text-primary">DetectQuiz</h2>
             <p class="text-muted">สมัครสมาชิกเพื่อเริ่มใช้งานระบบตรวจข้อสอบอัจฉริยะ</p>
         </div>
 
-        <!-- Flash messages -->
         {% if messages %}
             {% for message in messages %}
             <div class="alert alert-{{ message.tags }} text-center">{{ message }}</div>
             {% endfor %}
         {% endif %}
 
-        <!-- Non-field errors -->
         {% if form.non_field_errors %}
             <div class="alert alert-danger text-center">
                 {% for error in form.non_field_errors %}

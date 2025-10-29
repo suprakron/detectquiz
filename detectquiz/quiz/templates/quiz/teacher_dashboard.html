@@ -11,12 +11,10 @@
     <h2 class="fw-bold text-primary mb-0">
       <i class="bi bi-mortarboard-fill me-2"></i> หน้าหลักของครู
     </h2>
-    <!-- <a href="{% url 'logout' %}" class="btn btn-outline-danger btn-sm">
-      <i class="bi bi-box-arrow-right me-1"></i> ออกจากระบบ
-    </a> -->
+
   </div>
 
-  <!-- ปุ่มเครื่องมือ -->
+
   <div class="card shadow-sm border-0 mb-4">
     <div class="card-body d-flex flex-wrap gap-2">
       <a href="{% url 'create_subject' %}" class="btn btn-success">
@@ -30,6 +28,12 @@
       </a>
       <a href="{% url 'scorereal' %}" class="btn btn-info text-white">
         <i class="bi bi-bar-chart-line me-1"></i> ดูคะแนนเรียลไทม์
+      </a>
+      <a href="{% url 'addstudent' %}" class="btn btn-info text-white">
+        <i class="bi bi-bar-chart-line me-1"></i> บันทึกข้อมูลนักเรียน
+      </a>
+      <a href="{% url 'result' %}" class="btn btn-info text-white">
+        <i class="bi bi-bar-chart-line me-1"></i> ดูข้อมูลสรุปรวม
       </a>
     </div>
   </div>

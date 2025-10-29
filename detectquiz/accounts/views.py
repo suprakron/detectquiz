@@ -8,8 +8,6 @@ from .models import User
 def register(request):
     if request.method == "POST":
         form = UserRegisterForm(request.POST)
-        
-        # 🔹 เพิ่ม debug print
         print("POST data:", request.POST)
         
         if form.is_valid():

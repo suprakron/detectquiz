@@ -1,5 +1,5 @@
 from django import forms
-from .models import Subject, Test, StudentTestScore
+from .models import Subject, Test, StudentTestScore,StudentInfo
 
 # class SubjectForm(forms.ModelForm):
 #     class Meta:
@@ -84,3 +84,35 @@ class StudentTestScoreForm(forms.ModelForm):
 #     class Meta:
 #         model = StudentTestScore
 #         fields = ['student', 'test', 'score', 'behavior_score', 'midterm_score', 'final_score', 'assignment_score']
+
+class StudentForm(forms.ModelForm):
+    class Meta:
+        model = StudentInfo
+        fields = [
+            'student_id',
+            'first_name',
+            'last_name',
+            'grade_level',
+            'classroom',
+            'phone_number',
+            'email',
+            'guardian_name',
+            'guardian_email'
+        ]
+        widgets = {
+            'student_id': forms.TextInput(attrs={'class': 'form-control'}),
+            'first_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'last_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'grade_level': forms.TextInput(attrs={'class': 'form-control'}),
+            'classroom': forms.TextInput(attrs={'class': 'form-control'}),
+            'phone_number': forms.TextInput(attrs={'class': 'form-control'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control'}),
+            'guardian_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'guardian_email': forms.EmailInput(attrs={'class': 'form-control'}),
+        }
+
+class ExcelUploadForm(forms.Form):
+    file = forms.FileField(
+        label="อัปโหลดไฟล์ Excel",
+        widget=forms.ClearableFileInput(attrs={'class': 'form-control'})
+    )

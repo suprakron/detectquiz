@@ -1,0 +1,71 @@
+{% extends 'quiz/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+    table {
+        border-radius: 12px;
+        overflow: hidden;
+    }
+    thead {
+        background-color: #007bff;
+        color: white;
+    }
+    tbody tr:nth-child(even) {
+        background-color: #f8f9fa;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="teacher-dashboard py-5">
+    <div class="container">
+        <h3 class="text-center text-primary fw-bold mb-5">
+            <i class="bi bi-bar-chart-line me-2"></i> ผลสรุปการทำแบบทดสอบของนักเรียน
+        </h3>
+
+        {% if scores %}
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover align-middle shadow-sm">
+                <thead class="text-center">
+                    <tr>
+                        <th>รหัสนักเรียน</th>
+                        <th>ชื่อผู้ใช้</th>
+                        <th>ชื่อแบบทดสอบ</th>
+                        <th>คะแนนสอบ</th>
+                        <th>พฤติกรรม</th>
+                        <th>กลางภาค</th>
+                        <th>ปลายภาค</th>
+                        <th>งานที่มอบหมาย</th>
+                        <th>ดูกราฟ</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for s in scores %}
+                    <tr>
+                        <td class="text-center">{{ s.student.id }}</td>
+                        <td>{{ s.student.get_full_name|default:s.student.username }}</td>
+                        <td>{{ s.test.title }}</td>
+                        <td class="text-center">{{ s.score|default:"-" }}</td>
+                        <td class="text-center">{{ s.behavior_score|default:"-" }}</td>
+                        <td class="text-center">{{ s.midterm_score|default:"-" }}</td>
+                        <td class="text-center">{{ s.final_score|default:"-" }}</td>
+                        <td class="text-center">{{ s.assignment_score|default:"-" }}</td>
+                        <td class="text-center">
+                            <a href="{% url 'student_score_chart' s.student.id %}" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-graph-up"></i> ดูกราฟ
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="alert alert-warning text-center">
+            <i class="bi bi-exclamation-circle me-2"></i> ยังไม่มีข้อมูลคะแนนนักเรียน
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

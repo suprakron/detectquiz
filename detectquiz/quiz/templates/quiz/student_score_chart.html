@@ -1,0 +1,102 @@
+{% extends 'quiz/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/quiz/teacher.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="card shadow-lg border-0 rounded-4 p-4">
+        <h3 class="text-center text-primary mb-4 fw-bold">
+            <i class="bi bi-bar-chart-line-fill me-2"></i> ผลคะแนนของ {{ student.username }}
+        </h3>
+
+        <!-- แสดงกราฟ -->
+        <canvas id="scoreChart" height="150"></canvas>
+
+        <div class="text-center mt-4">
+            <a href="{% url 'teacher_dashboard' %}" class="btn btn-outline-secondary fw-bold">
+                <i class="bi bi-arrow-left me-1"></i> กลับ
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- ✅ โหลด Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // ✅ Django จะส่งข้อมูลมาในรูปแบบ JSON ผ่าน context
+    const labels = JSON.parse('{{ labels|safe|escapejs }}');
+    const scores = JSON.parse('{{ scores|safe|escapejs }}');
+    const behaviorScores = JSON.parse('{{ behavior_scores|safe|escapejs }}');
+    const midtermScores = JSON.parse('{{ midterm_scores|safe|escapejs }}');
+    const finalScores = JSON.parse('{{ final_scores|safe|escapejs }}');
+    const assignmentScores = JSON.parse('{{ assignment_scores|safe|escapejs }}');
+
+    const ctx = document.getElementById('scoreChart').getContext('2d');
+
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: 'คะแนนรวม',
+                    data: scores,
+                    backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                },
+                {
+                    label: 'พฤติกรรม',
+                    data: behaviorScores,
+                    backgroundColor: 'rgba(255, 206, 86, 0.7)',
+                    borderColor: 'rgba(255, 206, 86, 1)',
+                    borderWidth: 1
+                },
+                {
+                    label: 'กลางภาค',
+                    data: midtermScores,
+                    backgroundColor: 'rgba(75, 192, 192, 0.7)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                },
+                {
+                    label: 'ปลายภาค',
+                    data: finalScores,
+                    backgroundColor: 'rgba(255, 99, 132, 0.7)',
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    borderWidth: 1
+                },
+                {
+                    label: 'งานที่มอบหมาย',
+                    data: assignmentScores,
+                    backgroundColor: 'rgba(153, 102, 255, 0.7)',
+                    borderColor: 'rgba(153, 102, 255, 1)',
+                    borderWidth: 1
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { position: 'top' },
+                title: {
+                    display: true,
+                    text: 'ผลคะแนนของนักเรียน'
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100
+                }
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

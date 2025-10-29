@@ -26,8 +26,13 @@ urlpatterns = [
     path("", accounts_views.login_view, name="login"),
     path("register/", accounts_views.register, name="register"),
     path("logout/", accounts_views.logout_view, name="logout"),
-    path('password-reset/', accounts_views.password_reset_request, name='password_reset'),
+    path(
+        "password-reset/", accounts_views.password_reset_request, name="password_reset"
+    ),
     path("teacher/", quiz_views.teacher_dashboard, name="teacher_dashboard"),
+    path("addstudent/", quiz_views.addstudent, name="addstudent"),
+    path("result/", quiz_views.result, name="result"),
+    path('student/<int:student_id>/chart/', quiz_views.student_score_chart, name='student_score_chart'),
     path("student/", quiz_views.student_dashboard, name="student_dashboard"),
     path("subject/create/", quiz_views.create_subject, name="create_subject"),
     path("scorerealtime/", quiz_views.score_realtime, name="scorereal"),

@@ -1,11 +1,18 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 import requests
 import json
 from datetime import datetime
 from django.contrib.auth.decorators import login_required
-from .models import Subject, Test, StudentTestScore
-from .forms import SubjectForm, TestForm, StudentTestScoreForm
+from .models import Subject, Test, StudentTestScore,StudentInfo
+from .forms import SubjectForm, TestForm, StudentTestScoreForm,StudentForm, ExcelUploadForm
+import pandas as pd
+from django.contrib import messages
 from collections import namedtuple
+from django.contrib.auth import get_user_model
+
+
+
+
 @login_required
 def teacher_dashboard(request):
     subjects = Subject.objects.filter(teacher=request.user)
@@ -22,7 +29,7 @@ TestMock = namedtuple('TestMock', ['title'])
 
 @login_required
 def student_dashboard(request):
-    # สร้าง mock data 5 ชุด
+
     scores = [
         StudentTestScoreMock(
             test=TestMock(title="แบบทดสอบคณิตศาสตร์ 1"),
@@ -101,6 +108,83 @@ def enter_scores(request):
     else:
         form = StudentTestScoreForm()
     return render(request, 'quiz/enter_scores.html', {'form': form})
+
+@login_required
+def result(request):
+    scores = StudentTestScore.objects.select_related('student', 'test').all().order_by('student__username')
+    return render(request, 'quiz/result.html', {'scores': scores})
+
+
+User = get_user_model()
+
+def student_score_chart(request, student_id):
+    student = get_object_or_404(User, id=student_id)
+    scores = StudentTestScore.objects.filter(student=student)
+
+    labels = [score.test.title for score in scores]
+    total_scores = [score.score or 0 for score in scores]
+    behavior_scores = [score.behavior_score or 0 for score in scores]
+    midterm_scores = [score.midterm_score or 0 for score in scores]
+    final_scores = [score.final_score or 0 for score in scores]
+    assignment_scores = [score.assignment_score or 0 for score in scores]
+
+    context = {
+        'student': student,
+        'labels': labels,
+        'scores': total_scores,
+        'behavior_scores': behavior_scores,
+        'midterm_scores': midterm_scores,
+        'final_scores': final_scores,
+        'assignment_scores': assignment_scores,
+    }
+    return render(request, 'quiz/student_score_chart.html', context)
+
+@login_required
+def addstudent(request):
+    if request.method == 'POST':
+        if 'upload_excel' in request.POST:
+            excel_form = ExcelUploadForm(request.POST, request.FILES)
+            if excel_form.is_valid():
+                file = excel_form.cleaned_data['file']
+                try:
+                    df = pd.read_excel(file)
+                    for _, row in df.iterrows():
+                        StudentInfo.objects.update_or_create(
+                            student_id=row['student_id'],
+                            defaults={
+                                'first_name': row.get('first_name', ''),
+                                'last_name': row.get('last_name', ''),
+                                'grade_level': row.get('grade_level', ''),
+                                'classroom': row.get('classroom', ''),
+                                'phone_number': row.get('phone_number', ''),
+                                'email': row.get('email', ''),
+                                'guardian_name': row.get('guardian_name', ''),
+                                'guardian_email': row.get('guardian_email', ''),
+                            }
+                        )
+                    messages.success(request, "อัปโหลด Excel สำเร็จ!")
+                    return redirect('teacher_dashboard')
+                except Exception as e:
+                    messages.error(request, f"เกิดข้อผิดพลาด: {str(e)}")
+        else:
+            form = StudentForm(request.POST)
+            if form.is_valid():
+                form.save()
+                messages.success(request, "บันทึกข้อมูลนักเรียนเรียบร้อย")
+                return redirect('teacher_dashboard')
+    else:
+        form = StudentForm()
+        excel_form = ExcelUploadForm()
+    
+    context = {
+        'form': form,
+        'excel_form': excel_form
+    }
+    return render(request, 'quiz/add_student.html', context)
+
+
+
+
 
 # @login_required
 # def score_realtime(request):
