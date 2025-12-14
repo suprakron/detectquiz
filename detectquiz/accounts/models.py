@@ -4,6 +4,7 @@ from django.db import models
 class User(AbstractUser):
     is_teacher = models.BooleanField(default=False)
     is_student = models.BooleanField(default=False)
+    
 
 class StudentProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -13,6 +14,9 @@ class StudentProfile(models.Model):
     grade_level = models.CharField(max_length=20)
     classroom = models.CharField(max_length=20)
 
+    def __str__(self):
+            return f"{self.student_id} - {self.first_name} {self.last_name}"
+
 class TeacherProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     first_name = models.CharField(max_length=50)
@@ -20,3 +24,11 @@ class TeacherProfile(models.Model):
     position = models.CharField(max_length=50)
     classroom = models.CharField(max_length=50)
     subjects = models.CharField(max_length=200)
+    is_approved = models.BooleanField(
+        default=False,
+        verbose_name="สิทธิการอนุมัติ"
+    )
+
+    def __str__(self):
+        return f"{self.first_name} {self.last_name}"
+ 

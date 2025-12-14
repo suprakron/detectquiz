@@ -1,0 +1,193 @@
+{% extends 'quiz/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/quiz/teacher.css' %}">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+  #canvasContainer {
+    position: relative;
+    display: inline-block;
+  }
+
+  #annotationCanvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    cursor: crosshair;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+  <div class="card shadow-sm">
+    <div class="card-header bg-primary text-white">
+      <h3 class="mb-0">บันทึกเฉลยแบบทดสอบ</h3>
+    </div>
+    <div class="card-body">
+      <form method="post" enctype="multipart/form-data" class="row g-3" id="answerForm">
+        {% csrf_token %}
+
+        <!-- Fields -->
+        <div class="col-md-6">{{ form.subject_code.label_tag }} {{ form.subject_code }}</div>
+        <div class="col-md-6">{{ form.subject_name.label_tag }} {{ form.subject_name }}</div>
+        <div class="col-md-6">{{ form.test_name.label_tag }} {{ form.test_name }}</div>
+        <div class="col-md-3">{{ form.full_score.label_tag }} {{ form.full_score }}</div>
+        <div class="col-md-3">{{ form.exam_date.label_tag }} {{ form.exam_date }}</div>
+        <div class="col-md-6">{{ form.teacher_name.label_tag }} {{ form.teacher_name }}</div>
+        <div class="col-12">{{ form.answer_key.label_tag }} {{ form.answer_key }}</div>
+        <div class="col-12">{{ form.upload_file.label_tag }} {{ form.upload_file }}</div>
+
+        <a href="{% url 'preview_file' %}" class="btn btn-warning">จัดการเฉลย</a>
+        <!-- Image preview + annotation -->
+        <div id="canvasContainer" class="col-12 mt-3" style="display:none;">
+          <img id="imagePreview" class="img-fluid border rounded" />
+          <canvas id="annotationCanvas"></canvas>
+        </div>
+
+        <div class="col-12">
+          <p class="text-muted small">
+            💡 หากอัปโหลดไฟล์ Excel, PDF, JPG หรือ PNG ระบบจะแสดงตัวอย่างเฉลยและสามารถวาดกรอบ OCR ได้
+          </p>
+        </div>
+
+        <!-- Preview Answers -->
+        <div id="preview" class="col-12" style="display:none;">
+          <h5>ตัวอย่างเฉลยที่ระบบอ่านได้:</h5>
+          <ul id="preview_list" class="list-group"></ul>
+        </div>
+
+        <div class="col-12 text-end mt-3">
+          <button type="submit" name="save" class="btn btn-success btn-lg">บันทึกข้อมูล</button>
+        </div>
+      </form>
+
+      <button id="extractTextBtn" class="btn btn-primary mt-3" style="display:none;">อ่านข้อความในกรอบ</button>
+      <div id="ocrResult" class="mt-2"></div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@4.1.1/dist/tesseract.min.js"></script>
+<script>
+  // ดึง csrf token
+  function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+      const cookies = document.cookie.split(';');
+      for (let cookie of cookies) {
+        cookie = cookie.trim();
+        if (cookie.startsWith(name + '=')) {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
+        }
+      }
+    }
+    return cookieValue;
+  }
+
+  const uploadInput = document.getElementById("id_upload_file");
+  const previewDiv = document.getElementById("preview");
+  const previewList = document.getElementById("preview_list");
+  const imagePreview = document.getElementById("imagePreview");
+  const canvasContainer = document.getElementById("canvasContainer");
+  const annotationCanvas = document.getElementById("annotationCanvas");
+  const extractTextBtn = document.getElementById("extractTextBtn");
+  const ocrResult = document.getElementById("ocrResult");
+
+  let startX, startY, isDrawing = false;
+  let boxes = [];
+
+  // ฟังก์ชันปรับขนาด canvas ให้ตรงกับ image
+  function resizeCanvas() {
+    annotationCanvas.width = imagePreview.width;
+    annotationCanvas.height = imagePreview.height;
+  }
+
+  // โหลดไฟล์และ preview
+  uploadInput.addEventListener("change", function () {
+    const file = this.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append("upload_file", file);
+
+    fetch("{% url 'preview_file' %}", {
+      method: "POST",
+      headers: { 'X-CSRFToken': getCookie('csrftoken') },
+      body: formData
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.error) { alert(data.error); return; }
+
+        // แสดงเฉลย
+        previewList.innerHTML = "";
+        for (const [num, ans] of Object.entries(data)) {
+          const li = document.createElement("li");
+          li.className = "list-group-item";
+          li.textContent = `ข้อ ${num} : ${ans}`;
+          previewList.appendChild(li);
+        }
+        previewDiv.style.display = "block";
+
+        // แสดง preview + annotation สำหรับ image
+        if (file.type.startsWith("image/")) {
+          const reader = new FileReader();
+          reader.onload = function (e) {
+            imagePreview.src = e.target.result;
+            imagePreview.onload = () => {
+              resizeCanvas();
+              canvasContainer.style.display = "block";
+              extractTextBtn.style.display = "inline-block";
+            }
+          }
+          reader.readAsDataURL(file);
+        } else {
+          canvasContainer.style.display = "none";
+          extractTextBtn.style.display = "none";
+        }
+      })
+      .catch(err => console.error(err));
+  });
+
+  // วาด annotation
+  annotationCanvas.addEventListener("mousedown", e => {
+    startX = e.offsetX; startY = e.offsetY; isDrawing = true;
+  });
+  annotationCanvas.addEventListener("mousemove", e => {
+    if (!isDrawing) return;
+    const ctx = annotationCanvas.getContext("2d");
+    const w = e.offsetX - startX;
+    const h = e.offsetY - startY;
+    ctx.clearRect(0, 0, annotationCanvas.width, annotationCanvas.height);
+    boxes.forEach(b => {
+      ctx.strokeStyle = "red"; ctx.lineWidth = 2;
+      ctx.strokeRect(b.x, b.y, b.w, b.h);
+    });
+    ctx.strokeStyle = "red"; ctx.lineWidth = 2;
+    ctx.strokeRect(startX, startY, w, h);
+  });
+  annotationCanvas.addEventListener("mouseup", e => {
+    isDrawing = false;
+    boxes.push({ x: startX, y: startY, w: e.offsetX - startX, h: e.offsetY - startY });
+  });
+
+  // OCR
+  extractTextBtn.addEventListener("click", async () => {
+    ocrResult.innerHTML = "กำลังอ่านข้อความ...";
+    const image = imagePreview;
+    const results = [];
+    for (const b of boxes) {
+      const tempCanvas = document.createElement("canvas");
+      tempCanvas.width = Math.abs(b.w); tempCanvas.height = Math.abs(b.h);
+      const tempCtx = tempCanvas.getContext("2d");
+      tempCtx.drawImage(image, b.x, b.y, b.w, b.h, 0, 0, Math.abs(b.w), Math.abs(b.h));
+      const { data: { text } } = await Tesseract.recognize(tempCanvas.toDataURL("image/png"), 'tha+eng', { logger: m => console.log(m) });
+      results.push(text.trim());
+    }
+    ocrResult.innerHTML = "<b>ผล OCR:</b><br>" + results.join("<br>");
+  });
+</script>
+{% endblock %}

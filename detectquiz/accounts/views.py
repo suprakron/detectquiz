@@ -2,11 +2,17 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from .forms import UserRegisterForm, StudentProfileForm, TeacherProfileForm
-from .models import User
-from quiz.models import StudentInfo 
 from django.http import JsonResponse
+from functools import wraps
 
+from .forms import UserRegisterForm, StudentProfileForm, TeacherProfileForm
+from .models import User, TeacherProfile
+from quiz.models import StudentInfo
+
+
+# =========================
+# REGISTER
+# =========================
 def register(request):
     if request.method == "POST":
         user_form = UserRegisterForm(request.POST)
@@ -16,6 +22,7 @@ def register(request):
         if user_form.is_valid():
             user = user_form.save(commit=False)
             role = user_form.cleaned_data.get('role')
+
             user.is_student = role == 'student'
             user.is_teacher = role == 'teacher'
             user.save()
@@ -28,7 +35,6 @@ def register(request):
                     login(request, user)
                     return redirect('student_dashboard')
                 else:
-                    print(student_form.errors) 
                     messages.error(request, "ตรวจสอบข้อมูลนักเรียน")
 
             elif user.is_teacher:
@@ -39,11 +45,9 @@ def register(request):
                     login(request, user)
                     return redirect('teacher_dashboard')
                 else:
-                    print(teacher_form.errors) 
                     messages.error(request, "ตรวจสอบข้อมูลครู")
 
         else:
-            print(user_form.errors)  
             messages.error(request, "ตรวจสอบข้อมูลผู้ใช้")
 
     else:
@@ -59,38 +63,83 @@ def register(request):
     return render(request, "accounts/register.html", context)
 
 
+# =========================
+# PERMISSION DECORATOR
+# =========================
+def teacher_required(view_func):
+    @wraps(view_func)
+    def wrapper(request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            messages.error(request, "กรุณาเข้าสู่ระบบก่อน")
+            return redirect('login')
+
+        if not request.user.is_teacher:
+            messages.error(request, "คุณไม่มีสิทธิ์ใช้งานหน้านี้")
+            return redirect('login')
+
+        return view_func(request, *args, **kwargs)
+    return wrapper
+
+
+# =========================
+# LOGIN
+# =========================
 def login_view(request):
     if request.method == "POST":
-        username = request.POST["username"]
-        password = request.POST["password"]
+        username = request.POST.get("username")
+        password = request.POST.get("password")
+
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
+
             if user.is_teacher:
                 return redirect("teacher_dashboard")
             elif user.is_student:
                 return redirect("student_dashboard")
             else:
-                return redirect("login")   
+                return redirect("login")
+
         else:
-            return render(request, "accounts/login.html", {"error": "ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง"})
+            return render(
+                request,
+                "accounts/login.html",
+                {"error": "ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง"}
+            )
+
     return render(request, "accounts/login.html")
 
+
+# =========================
+# LOGOUT
+# =========================
 @login_required
 def logout_view(request):
     logout(request)
     messages.info(request, "ออกจากระบบเรียบร้อยแล้ว")
     return redirect("login")
+
+
+# =========================
+# PASSWORD RESET (MOCK)
+# =========================
 def password_reset_request(request):
     if request.method == "POST":
         email = request.POST.get("email")
         if email:
-            # logic ส่งอีเมล reset password
-            messages.success(request, "ส่งลิงก์รีเซ็ตรหัสผ่านไปยังอีเมลของคุณเรียบร้อยแล้ว")
+            messages.success(
+                request,
+                "ส่งลิงก์รีเซ็ตรหัสผ่านไปยังอีเมลของคุณเรียบร้อยแล้ว"
+            )
         else:
             messages.error(request, "กรุณากรอกอีเมลของคุณ")
+
     return render(request, "accounts/forgotpassword.html")
 
+
+# =========================
+# AJAX: GET STUDENT INFO
+# =========================
 def get_student_info(request):
     student_id = request.GET.get('student_id')
     try:
@@ -102,5 +151,6 @@ def get_student_info(request):
             "classroom": student.classroom,
         }
         return JsonResponse({"success": True, "data": data})
+
     except StudentInfo.DoesNotExist:
         return JsonResponse({"success": False, "data": {}})

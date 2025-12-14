@@ -83,8 +83,23 @@
             padding: 2rem 1rem;
         }
     }
-    button{
+
+    button {
         background-color: #6a11cb;
+    }
+
+    #admin-fields {
+        margin-top: 1rem;
+        padding: 1rem 1.25rem;
+        border: 1px solid #dee2e6;
+        border-radius: 0.75rem;
+        background-color: #f8f9fa;
+        transition: all 0.3s ease;
+    }
+
+    #admin-fields h6 {
+        font-size: 1rem;
+        margin-bottom: 0.75rem;
     }
 </style>
 {% endblock %}
@@ -207,12 +222,36 @@
                         for="{{ teacher_form.subjects.id_for_label }}">สอนรายวิชา</label></div>
             </div>
 
-    
+            <!-- Admin fields -->
+            <div id="admin-fields">
+                <h6 class="text-primary fw-semibold">ข้อมูลผู้ดูแลระบบ</h6>
+                <div class="form-floating mb-2">
+                    {{ admin_form.first_name }}
+                    <label for="{{ admin_form.first_name.id_for_label }}">ชื่อ</label>
+                </div>
+                <div class="form-floating mb-2">
+                    {{ admin_form.last_name }}
+                    <label for="{{ admin_form.last_name.id_for_label }}">นามสกุล</label>
+                </div>
+                <div class="form-floating mb-2">
+                    {{ admin_form.position }}
+                    <label for="{{ admin_form.position.id_for_label }}">ตำแหน่ง</label>
+                </div>
+                <div class="form-floating mb-2">
+                    {{ admin_form.phone_number }}
+                    <label for="{{ admin_form.phone_number.id_for_label }}">เบอร์โทรศัพท์</label>
+                </div>
+                <div class="form-floating mb-2">
+                    {{ admin_form.email }}
+                    <label for="{{ admin_form.email.id_for_label }}">อีเมล</label>
+                </div>
+            </div>
+
             <div class="d-grid mt-3">
                 <button type="submit" class="btn">
                     สมัครสมาชิก
                 </button>
-       
+
         </form>
 
         <p class="text-center text-muted mt-3">
@@ -226,16 +265,19 @@
     const roleRadios = document.getElementsByName("role");
     const studentFields = document.getElementById("student-fields");
     const teacherFields = document.getElementById("teacher-fields");
-
+    const adminFields = document.getElementById("admin-fields");
     function toggleFields() {
         const selectedRole = Array.from(roleRadios).find(r => r.checked)?.value;
         const isStudent = selectedRole === "student";
         const isTeacher = selectedRole === "teacher";
+        const isAdmin = selectedRole === "admin";
 
         studentFields.style.display = isStudent ? "block" : "none";
         teacherFields.style.display = isTeacher ? "block" : "none";
+        adminFields.style.display = isAdmin ? "block" : "none";
         studentFields.querySelectorAll("input").forEach(i => i.disabled = !isStudent);
         teacherFields.querySelectorAll("input").forEach(i => i.disabled = !isTeacher);
+          adminFields.querySelectorAll("input").forEach(i => i.disabled = !isAdmin);
     }
 
     roleRadios.forEach(r => r.addEventListener("change", toggleFields));

@@ -75,10 +75,24 @@ WSGI_APPLICATION = "detectquiz.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
+# DATABASES = {
+#     "default": {
+#         "ENGINE": "django.db.backends.sqlite3",
+#         "NAME": BASE_DIR / "db.sqlite3",
+#     }
+# }
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+    'default': {
+        'ENGINE': 'mssql',              
+        'NAME': 'detectquiz',           
+        'USER': '',                     
+        'PASSWORD': '',
+        'HOST': 'HP\\SQLEXPRESS',       
+        'PORT': '',                  
+        'OPTIONS': {
+            'driver': 'ODBC Driver 17 for SQL Server',
+            'trusted_connection': 'yes',  
+        },
     }
 }
 

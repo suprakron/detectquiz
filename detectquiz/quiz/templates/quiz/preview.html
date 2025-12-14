@@ -1,0 +1,124 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Preview & Annotation</title>
+    <style>
+        #canvasContainer {
+            position: relative;
+            display: inline-block;
+        }
+
+        #annotationCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <h2>Preview & Annotation</h2>
+
+    <form method="post" enctype="multipart/form-data" action="{% url 'preview_file' %}">
+        {% csrf_token %}
+        {{ form.upload_file }}
+        <button type="submit">Preview</button>
+    </form>
+
+    {% if preview_data %}
+    <div id="canvasContainer">
+        <img id="filePreview" src="data:image/png;base64,{{ preview_data }}" class="img-fluid border" />
+        <canvas id="annotationCanvas"></canvas>
+    </div>
+    <button id="extractTextBtn">อ่านข้อความในกรอบ</button>
+    <div id="ocrResult"></div>
+    {% endif %}
+
+    {% if doc_text %}
+    <h3>ข้อความใน DOCX</h3>
+    <pre>{{ doc_text }}</pre>
+    {% endif %}
+
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4.1.1/dist/tesseract.min.js"></script>
+    <script>
+        const canvas = document.getElementById("annotationCanvas");
+        const img = document.getElementById("filePreview");
+        if (canvas && img) {
+            canvas.width = img.width;
+            canvas.height = img.height;
+
+            let startX, startY, isDrawing = false;
+            const boxes = []; // เก็บทุกกล่อง
+
+            canvas.addEventListener("mousedown", e => {
+                startX = e.offsetX;
+                startY = e.offsetY;
+                isDrawing = true;
+            });
+
+            canvas.addEventListener("mousemove", e => {
+                if (!isDrawing) return;
+                const ctx = canvas.getContext("2d");
+                const w = e.offsetX - startX;
+                const h = e.offsetY - startY;
+
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                // วาดทุกกล่องเก่าที่เก็บไว้
+                boxes.forEach(b => {
+                    ctx.strokeStyle = "red";
+                    ctx.lineWidth = 2;
+                    ctx.strokeRect(b.x, b.y, b.w, b.h);
+                });
+
+                // วาดกล่องปัจจุบัน
+                ctx.strokeStyle = "blue"; // สีกล่องที่กำลังวาด
+                ctx.lineWidth = 2;
+                ctx.strokeRect(startX, startY, w, h);
+            });
+
+            canvas.addEventListener("mouseup", e => {
+                isDrawing = false;
+                const w = e.offsetX - startX;
+                const h = e.offsetY - startY;
+                boxes.push({ x: startX, y: startY, w: w, h: h });
+                console.log("Box coords:", startX, startY, w, h);
+            });
+
+
+
+            canvas.addEventListener("mouseup", e => {
+                isDrawing = false;
+                const w = e.offsetX - startX;
+                const h = e.offsetY - startY;
+                boxes.push({ x: startX, y: startY, w: w, h: h });
+                console.log("Box coords:", startX, startY, w, h);
+            });
+
+            document.getElementById("extractTextBtn").addEventListener("click", async () => {
+                const boxesData = boxes.map(b => ({ x: b.x, y: b.y, w: b.w, h: b.h }));
+                const formData = new FormData();
+                formData.append("image", img.src);
+                formData.append("boxes", JSON.stringify(boxesData));
+
+                const res = await fetch("{% url 'ocr_from_boxes' %}", {
+                    method: "POST",
+                    headers: { 'X-CSRFToken': '{{ csrf_token }}' },
+                    body: formData
+                });
+                const data = await res.json();
+                if (data.results) {
+                    document.getElementById("ocrResult").innerHTML = "<b>ผล OCR:</b><br>" + data.results.join("<br>");
+                } else {
+                    document.getElementById("ocrResult").innerHTML = "เกิดข้อผิดพลาด";
+                }
+            });
+
+
+        }
+    </script>
+</body>
+
+</html>

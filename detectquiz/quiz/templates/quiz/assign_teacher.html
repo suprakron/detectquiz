@@ -1,0 +1,74 @@
+{% extends 'quiz/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+
+    <!-- ฟอร์มเลือกวิชา -->
+    <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+            {{ select_form.subject.label_tag }}
+            {{ select_form.subject }}
+        </div>
+        <button type="submit" class="btn btn-primary">เลือกวิชา</button>
+    </form>
+
+    <hr>
+
+    <!-- ฟอร์มสร้าง/แก้ไขวิชา -->
+    <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+            {{ subject_form.name.label_tag }}
+            {{ subject_form.name }}
+        </div>
+        <div class="mb-3">
+            {{ subject_form.grade_level.label_tag }}
+            {{ subject_form.grade_level }}
+        </div>
+        <div class="mb-3">
+            {{ subject_form.new_grade_level.label_tag }}
+            {{ subject_form.new_grade_level }}
+        </div>
+        <div class="mb-3">
+            {{ subject_form.classroom.label_tag }}
+            {{ subject_form.classroom }}
+        </div>
+        <div class="mb-3">
+            {{ subject_form.new_classroom.label_tag }}
+            {{ subject_form.new_classroom }}
+        </div>
+        <button type="submit" class="btn btn-success">เพิ่ม/แก้ไขวิชา</button>
+    </form>
+
+    {% if selected_subject %}
+    <hr>
+    <!-- ฟอร์มกำหนดครูผู้สอน -->
+    <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+            {{ teacher_form.teachers.label_tag }}
+            {{ teacher_form.teachers }}
+        </div>
+        <button type="submit" class="btn btn-primary">บันทึกครูผู้สอน</button>
+    </form>
+
+    <hr>
+    <!-- รายชื่อครูผู้สอนปัจจุบัน -->
+    <h5>ครูผู้สอนปัจจุบัน</h5>
+    <ul class="list-group mb-4">
+        {% for teacher in selected_subject.teachers.all %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+            {{ teacher.get_full_name }}
+            <a href="{% url 'remove_teacher' selected_subject.id teacher.id %}" class="btn btn-sm btn-danger">
+                ลบ
+            </a>
+        </li>
+        {% empty %}
+        <li class="list-group-item text-muted">ยังไม่มีครูผู้สอน</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+
+</div>
+{% endblock %}

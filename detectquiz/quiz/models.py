@@ -1,14 +1,14 @@
 from django.db import models
-from accounts.models import User
+from accounts.models import User,TeacherProfile
 
 class Subject(models.Model):
-    name = models.CharField(max_length=100, verbose_name="ชื่อรายวิชา")
-    grade_level = models.CharField(max_length=20, verbose_name="ระดับชั้น")
-    classroom = models.CharField(max_length=20, verbose_name="ห้องเรียน")
-    teacher = models.ForeignKey(User, on_delete=models.CASCADE, related_name='subjects')
+    name = models.CharField(max_length=100)
+    grade_level = models.CharField(max_length=50)  # เช่น ม.1 ม.2
+    classroom = models.CharField(max_length=50)    # เช่น ห้อง 1/1
+    teachers = models.ManyToManyField(TeacherProfile, blank=True)
 
     def __str__(self):
-        return f"{self.name} ({self.grade_level} - {self.classroom})"
+        return f"{self.name} ({self.grade_level} {self.classroom})"
 
 class Test(models.Model):
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
@@ -43,6 +43,51 @@ class StudentInfo(models.Model):
 
     def __str__(self):
         return f"{self.first_name} {self.last_name} ({self.student_id})"
+
+
+
+class AnswerExam(models.Model):
+    subject_code = models.CharField(
+        max_length=20,
+        verbose_name="รหัสวิชา"
+    )
+    subject_name = models.CharField(
+        max_length=100,
+        verbose_name="ชื่อวิชา"
+    )
+    test_name = models.CharField(
+        max_length=100,
+        verbose_name="ชื่อแบบทดสอบ"
+    )
+
+    answer_key = models.JSONField(
+        verbose_name="เฉลย",
+    )
+
+    full_score = models.PositiveIntegerField(
+        default=100,
+        verbose_name="คะแนนเต็ม"
+    )
+    teacher_name = models.CharField(
+        max_length=100,
+        verbose_name="ชื่อครูผู้สอน"
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name="วันที่สร้าง"
+    )
+    exam_date = models.DateField(
+        verbose_name="วันที่จัดสอบ"
+    )
+
+    class Meta:
+        verbose_name = "ข้อมูลแบบทดสอบ"
+        verbose_name_plural = "ข้อมูลแบบทดสอบทั้งหมด"
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.subject_code} - {self.test_name}"
 
  
    
